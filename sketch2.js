@@ -9,19 +9,25 @@ game.getCurre {
   ntScene().display();
 
   replayButton = createButton('Replay');
-  replayButton.position(width / 2 - 30, height - 75); // Adjust button position
+function setup() {
+  createCanvas(800, 600);
+  dialogueSystem = new Dialogue();
+  game = new DetectiveGame();
+  game.getCurrentScene().display();
+
+  replayButton.position(width / 2 - replayButton.width / 2, height / 2);
   replayButton.mousePressed(restartGame);
   replayButton.hide(); // Hide the button until the game is over
 }
 
 function draw() {
-  background(220);
+  background(0); // Set background to black
   dialogueSystem.display();
 }
 
 function keyPressed() {
   if (!game.gameOver) {
-    let numChoice = parseInt(key) - 1; // Convert key '1', '2', '3' to 0, 1, 2
+    const numChoice = parseInt(key) - 1;
     if (!isNaN(numChoice) && numChoice < game.getCurrentScene().options.length) {
       game.handlePlayerChoice(numChoice);
     }
@@ -30,7 +36,7 @@ function keyPressed() {
 
 function restartGame() {
   game.resetGame();
-  replayButton.hide(); // Hide the replay button
+  replayButton.hide();
 }
 
 class Scene {
@@ -53,7 +59,7 @@ class Scene {
     if (index >= 0 && index < this.options.length) {
       return this.options[index].nextSceneId;
     }
-    return this.id;
+    return null; // Stay on the current scene if the choice is out of range
   }
 }
 
@@ -63,10 +69,11 @@ class Dialogue {
   }
 
   add_dialogue(speaker, message) {
-    this.dialogues.push({ speaker: speaker, message: message });
+    this.dialogues.push({ speaker: speaker, message: `${speaker} says: ${message}` });
   }
 
   display() {
+    fill(0, 255, 0); // Set text to Matrix green
     textSize(16);
     let yPos = 50;
     this.dialogues.forEach(dialogue => {
@@ -83,6 +90,7 @@ class Dialogue {
 }
 
 class DetectiveGame {
+  currentScene;
   constructor() {
     this.scenes = this.setupScenes();
     this.currentSceneId = 'start';
@@ -96,10 +104,23 @@ class DetectiveGame {
       'start': new Scene('start', "You wake up in a mysterious room. There's a door to your right and a cave to your left.", [
         { text: "Enter the cave", nextSceneId: 'cave' },
         { text: "Go through the door", nextSceneId: 'outdoor' }
+    return {
+      'end': new Scene('end', "🏁 Thank you for playing. The adventure ends here. 🌌", []),
+      'start': new Scene('start', "🕵️‍♂️ You wake up in a virtual reality world. There's a 💻 computer with a code matrix to your right and a 🚪 mysterious door to your left.", [
+        { text: "Hack the code matrix", nextSceneId: 'matrix' },
+        { text: "Go through the mysterious door", nextSceneId: 'door' }
       ]),
       // Add more scenes as needed
+      'matrix': new Scene('matrix', "You're inside the matrix. Codes and algorithms surround you. 🌐", [
+        { text: "Start decoding", nextSceneId: 'decode' },
+        { text: "Look for an exit", nextSceneId: 'exit' }
+      ]),
+      'door': new Scene('door', "The door leads to a room with rebels planning an operation. 🛠️", [
+        { text: "Join the rebels", nextSceneId: 'rebel' },
+        { text: "Return to the virtual world", nextSceneId: 'start' }
+      ]),
+      // Add more scenes and options as needed
     };
-    return scenes;
   }
 
   getCurrentScene() {
@@ -108,8 +129,9 @@ class DetectiveGame {
 
   handlePlayerChoice(choiceIndex) {
     if (this.gameOver) {
-      console.log("The game is over. No more choices can be made.");
-      return; // If the game is over, ignore further key presses
+      dialogueSystem.add_dialogue("Narrator", "The game is over. Click the button to replay.");
+      replayButton.show();
+      return;
     }
 
     const currentScene = this.getCurrentScene();
@@ -123,20 +145,19 @@ class DetectiveGame {
 
       if (nextSceneId === 'end') {
         this.gameOver = true;
-        replayButton.show(); // Show the replay button
+        replayButton.show();
       }
     } else {
       dialogueSystem.add_dialogue("Narrator", "Please select a valid option.");
-      dialogueSystem.display();
     }
+    dialogueSystem.display();
   }
-
-  // https://chat.openai.com/c/07bd203f-42cd-444d-946a-15def0381898
 
   transitionToScene(nextSceneId) {
     if (this.scenes[nextSceneId]) {
       this.currentSceneId = nextSceneId;
       this.getCurrentScene().display();
+      this.currentScene = this.getCurrentScene();
     } else {
       dialogueSystem.add_dialogue("Narrator", "An unexpected error occurred.");
     }
@@ -149,4 +170,3 @@ class DetectiveGame {
   }
 }
 
-// Continue with the rest of the classes and functions...

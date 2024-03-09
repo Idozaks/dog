@@ -15,7 +15,8 @@ function setup() {
 }
 
 function draw() {
-  background(220);
+  background(0);
+
   dialogueSystem.display();
 }
 
@@ -68,9 +69,10 @@ class Dialogue {
 
   display() {
     textSize(16);
+
     let yPos = 50;
     this.dialogues.forEach(dialogue => {
-      fill(255);
+      fill('20FA21');
       text(dialogue.message, 20, yPos, width - 40);
       yPos += 60;
     });
