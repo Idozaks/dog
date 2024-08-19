@@ -1,6 +1,7 @@
 let game;
 let dialogueSystem;
 let replayButton;
+ 
 
 function setup() {
   createCanvas(800, 600);
