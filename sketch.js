@@ -6,17 +6,26 @@ function setup() {
   createCanvas(800, 600);
   dialogueSystem = new Dialogue();
   game = new DetectiveGame();
+  
+  textFont('Helvetica Neue');
+  textSize(18);
+  textLeading(90); // Set the line spacing to 90 pixels
+  
   game.getCurrentScene().display();
 
   replayButton = createButton('🔄 Replay');
-  replayButton.position(width / 2 - replayButton.width / 2, height / 2);
+  replayButton.position(width / 2 - 50, height - 50);
+  replayButton.style('background-color', '#4CAF50');
+  replayButton.style('color', 'white');
+  replayButton.style('padding', '30px 60px');
+  replayButton.style('border', 'none');
+  replayButton.style('border-radius', '5px');
   replayButton.mousePressed(restartGame);
   replayButton.hide();
 }
 
 function draw() {
-  background(0);
-
+  background('#1E1E1E');
   dialogueSystem.display();
 }
 
@@ -48,7 +57,7 @@ class Scene {
     dialogueSystem.clear();
     dialogueSystem.add_dialogue("Narrator", this.description);
     this.options.forEach((option, index) => {
-      dialogueSystem.add_dialogue("Option", `➡️ ${index + 1}: ${option.text}`);
+      dialogueSystem.add_dialogue("Option", `${index + 1}: ${option.text}`);
     });
     dialogueSystem.display();
   }
@@ -78,17 +87,21 @@ class Dialogue {
    * @param {string} message - The message spoken by the speaker.
    */
   add_dialogue(speaker, message) {
-    this.dialogues.push({ speaker: speaker, message: `${speaker} says: ${message}` });
+    this.dialogues.push({ speaker, message });
   }
 
   display() {
-    textSize(16);
-    fill('20FA21');
+    textFont('Helvetica Neue');
+    textSize(18);
     let yPos = 50;
     this.dialogues.forEach(dialogue => {
-      fill('20FA21');
-      text(dialogue.message, 20, yPos, width - 40);
-      yPos += 60;
+      fill('#FFD700'); // Gold color for speaker
+      textStyle(BOLD);
+      text(`${dialogue.speaker}:`, 20, yPos);
+      fill('#FFFFFF'); // White color for message
+      textStyle(NORMAL);
+      text(dialogue.message, 20, yPos + 25, width - 40);
+      yPos += textLeading() + 90; // Increase vertical position by line height plus extra spacing
     });
   }
 
