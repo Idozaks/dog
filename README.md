@@ -11,7 +11,7 @@ As an avid AI implementor and developer, I'm passionate about leveraging artific
 
 ## 🌟 Projects
 
-One of my notable projects is the **Mycelium Matchmaker**, which showcases my ability to blend AI with creative problem-solving. For more of my work, check out [my GitHub profile](#).
+One of my notable projects is the **Mycelium Matchmaker**, which showcases my ability to blend AI with creative problem-solving. For more of my work, check out [my GitHub profile](https://github.com/Idozaks).
 
 ## 💼 Skills
 
@@ -32,6 +32,4 @@ When I'm not immersed in the world of AI and technology, I enjoy:
 
 Feel free to reach out if you're interested in collaborating on AI projects or discussing the latest developments in the field!
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/yourusername)
-[![Twitter](https://img.shields.io/badge/Twitter-Follow-1DA1F2)](https://twitter.com/yourusername)
-[![Email](https://img.shields.io/badge/Email-Contact-red)](mailto:your.email@example.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue)](https://www.linkedin.com/in/ido-zaks)
