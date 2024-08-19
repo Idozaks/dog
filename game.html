@@ -33,7 +33,7 @@
       text-align: center;
       text-decoration: none;
       display: block;
-      font-size: 16px;
+      font-size: 18px;
       margin: 4px 0;
       cursor: pointer;
       transition: all 0.3s ease;
@@ -176,12 +176,12 @@ class Dialogue {
   }
 
   display() {
-    textSize(16);
+    textSize(20);
     fill('20FA21');
     let yPos = 50;
     this.dialogues.forEach(dialogue => {
       dialogue.display(20, yPos, width - 40);
-      yPos += 60;
+      yPos += 80;
     });
   }
 
