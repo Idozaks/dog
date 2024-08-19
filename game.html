@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1, minimum-scale=1">
+  <title>Detective Doggo Adventure</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.1/lib/p5.js"></script>
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #1E1E1E;
+      color: #FFFFFF;
+    }
+    canvas {
+      display: block;
+    }
+    .button-container {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .game-button {
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 16px;
+      margin: 4px 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 80%;
+      max-width: 300px;
+    }
+    .game-button:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+<script>
+let game;
+let dialogueSystem;
+let replayButton;
+let fadeAlpha = 255;
+let particles = [];
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  dialogueSystem = new Dialogue();
+  game = new DetectiveGame();
+  game.getCurrentScene().display();
+
+  replayButton = createButton('🔄 Replay');
+  replayButton.position(width / 2 - 50, height - 40);
+  replayButton.addClass('game-button');
+  replayButton.style('position', 'absolute');
+  replayButton.mousePressed(restartGame);
+  replayButton.hide();
+
+  for (let i = 0; i < 50; i++) {
+    particles.push(new Particle());
+  }
+}
+
+function draw() {
+  background(0);
+  particles.forEach(p => {
+    p.update();
+    p.display();
+  });
+  dialogueSystem.display();
+  fadeIn();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
+function keyPressed() {
+  if (!game.gameOver) {
+    const numChoice = parseInt(key) - 1;
+    if (!isNaN(numChoice) && numChoice < game.getCurrentScene().options.length) {
+      game.handlePlayerChoice(numChoice);
+    }
+  }
+}
+
+function restartGame() {
+  game.resetGame();
+  replayButton.hide();
+}
+
+function fadeIn() {
+  if (fadeAlpha > 0) {
+    fadeAlpha -= 5;
+    fill(0, fadeAlpha);
+    rect(0, 0, width, height);
+  }
+}
+
+function removeExistingButtons() {
+  const buttons = selectAll('button');
+  buttons.forEach(button => {
+    if (button !== replayButton) {
+      button.remove();
+    }
+  });
+}
+
+function disableButtons() {
+  const buttons = selectAll('button');
+  buttons.forEach(button => {
+    if (button !== replayButton) {
+      button.attribute('disabled', '');
+    }
+  });
+}
+
+class Scene {
+  constructor(id, description, options) {
+    this.id = id;
+    this.description = description;
+    this.options = options;
+  }
+
+  display() {
+    dialogueSystem.clear();
+    dialogueSystem.add_dialogue("Narrator", this.description);
+    
+    removeExistingButtons();
+    
+    let buttonContainer = createDiv('');
+    buttonContainer.addClass('button-container');
+    
+    this.options.forEach((option, index) => {
+      let btn = createButton(`${index + 1}: ${option.text}`);
+      btn.parent(buttonContainer);
+      btn.mousePressed(() => game.handlePlayerChoice(index));
+      btn.addClass('game-button');
+    });
+    dialogueSystem.display();
+  }
+
+  selectOption(index) {
+    if (index >= 0 && index < this.options.length) {
+      return this.options[index].nextSceneId;
+    }
+    return null;
+  }
+}
+
+class Dialogue {
+  constructor() {
+    this.dialogues = [];
+    this.currentTypewriter = null;
+  }
+
+  add_dialogue(speaker, message) {
+    this.dialogues.push({ speaker: speaker, message: `${speaker} says: ${message}` });
+  }
+
+  display() {
+    textSize(16);
+    fill('20FA21');
+    let yPos = 50;
+    this.dialogues.forEach(dialogue => {
+      fill('20FA21');
+      text(dialogue.message, 20, yPos, width - 40);
+      yPos += 60;
+    });
+  }
+
+  clear() {
+    this.dialogues = [];
+    fadeAlpha = 255;
+  }
+}
+
+class TypeWriter {
+  constructor(text, speed = 50) {
+    this.text = text;
+    this.speed = speed;
+    this.index = 0;
+    this.isComplete = false;
+  }
+
+  update() {
+    if (this.index < this.text.length) {
+      this.index++;
+    } else {
+      this.isComplete = true;
+    }
+  }
+
+  display(x, y, w, h) {
+    text(this.text.substring(0, this.index), x, y, w, h);
+  }
+}
+
+class Particle {
+  constructor() {
+    this.x = random(width);
+    this.y = random(height);
+    this.size = random(2, 5);
+    this.speed = random(0.5, 2);
+  }
+
+  update() {
+    this.y += this.speed;
+    if (this.y > height) {
+      this.y = 0;
+      this.x = random(width);
+    }
+  }
+
+  display() {
+    noStroke();
+    fill(200, 200, 200, 100);
+    ellipse(this.x, this.y, this.size);
+  }
+}
+
+class DetectiveGame {
+  constructor() {
+    this.scenes = this.setupScenes();
+    this.currentSceneId = 'start';
+    this.gameOver = false;
+    this.playerChoices = [];
+  }
+
+  setupScenes() {
+    return {
+      'end': new Scene('end', "🏁 Thank you for playing. The adventure ends here. 🌌", []),
+      'start': new Scene('start', "🕵️‍♂️ You wake up in a virtual reality world. There's a 💻 computer with a code matrix to your right, a 🚪 mysterious door to your left, a 📚 dusty old bookshelf filled with tomes of forgotten knowledge straight ahead, and a 🌀 swirling portal on the ground just behind you.", [
+        { text: "Hack the code matrix", nextSceneId: 'matrix' },
+        { text: "Go through the mysterious door", nextSceneId: 'door' },
+        { text: "Examine the bookshelf", nextSceneId: 'bookshelf' },
+        { text: "Enter the swirling portal", nextSceneId: 'portal' }
+      ]),
+      'matrix': new Scene('matrix', "You're inside the matrix. Codes and algorithms surround you. 🌐", [
+        { text: "Start decoding", nextSceneId: 'decode' },
+        { text: "Look for an exit", nextSceneId: 'exit' }
+      ]),
+      'door': new Scene('door', "The door leads to a room with rebels planning an operation. 🛠️", [
+        { text: "Join the rebels", nextSceneId: 'rebel' },
+        { text: "Return to the virtual world", nextSceneId: 'start' }
+      ]),
+      'bookshelf': new Scene('bookshelf', "Approaching the bookshelf, you find an eclectic mix of ancient manuscripts and modern digital texts. A particular volume catches your eye.", [
+        { text: "Read the ancient manuscript about virtual worlds", nextSceneId: 'ancient_manuscript' },
+        { text: "Inspect a digital text on advanced coding techniques", nextSceneId: 'coding_tome' }
+      ]),
+      'portal': new Scene('portal', "Stepping into the swirling portal, you're whisked away to a realm that defies the laws of physics, filled with floating islands and ethereal music.", [
+        { text: "Explore the nearest floating island", nextSceneId: 'floating_island' },
+        { text: "Follow the source of the ethereal music", nextSceneId: 'music_source' }
+      ]),
+      // Add more scenes as needed
+    };
+  }
+
+  getCurrentScene() {
+    return this.scenes[this.currentSceneId];
+  }
+
+  handlePlayerChoice(choiceIndex) {
+    if (this.gameOver) {
+      dialogueSystem.add_dialogue("Narrator", "The game is over. Click the button to replay.");
+      replayButton.show();
+      return;
+    }
+
+    const currentScene = this.getCurrentScene();
+    if (currentScene.options[choiceIndex]) {
+      disableButtons();
+
+      const nextSceneId = currentScene.selectOption(choiceIndex);
+      this.playerChoices.push(currentScene.options[choiceIndex].text);
+
+      this.transitionToScene(nextSceneId);
+
+      if (nextSceneId === 'end') {
+        this.gameOver = true;
+        replayButton.show();
+      }
+    } else {
+      dialogueSystem.add_dialogue("Narrator", "Please select a valid option.");
+    }
+    dialogueSystem.display();
+  }
+
+  transitionToScene(nextSceneId) {
+    if (this.scenes[nextSceneId]) {
+      this.currentSceneId = nextSceneId;
+      this.getCurrentScene().display();
+    } else {
+      dialogueSystem.add_dialogue("Narrator", "An unexpected error occurred.");
+    }
+  }
+
+  resetGame() {
+    this.currentSceneId = 'start';
+    this.gameOver = false;
+    this.playerChoices = [];
+    this.getCurrentScene().display();
+  }
+}
+
+</script>
+</body>
+</html>
