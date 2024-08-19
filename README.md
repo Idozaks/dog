@@ -1,29 +1,27 @@
-# AI Enthusiast & Innovator 🚀
+# Detective Doggo Adventure
 
-As an avid AI implementor and developer, I'm passionate about leveraging artificial intelligence to create innovative solutions.
+## Game Description
 
-## 🛠️ Expertise
+Detective Doggo Adventure is an interactive text-based mystery game set in a virtual reality world. Players take on the role of a detective navigating through various scenes and making choices that affect the outcome of the story.
 
-- **Programming Languages:** JavaScript, Python, Java
-- **AI Tools:** Claude, ChatGPT
-- **Networking:** CCNA certified
-- **Quality Assurance:** Experienced QA Engineer
+### Key Features:
+- Text-based gameplay with multiple choice options
+- Dynamic scene transitions
+- Immersive storytelling with a virtual reality theme
+- Multiple paths and endings for replayability
 
-## 🌟 Projects
+### Gameplay:
+Players start in a virtual reality world and encounter different scenarios, such as hacking a code matrix or exploring mysterious doors. Each choice leads to a new scene with its own set of options, creating a branching narrative structure.
 
-### Detective Doggo Adventure
+### Technical Details:
+- Built using JavaScript and the p5.js library for visual elements
+- Utilizes object-oriented programming with classes for scenes, dialogue system, and game logic
+- Responsive design for various screen sizes
 
-Detective Doggo Adventure is an interactive text-based mystery game where players take on the role of a detective in a virtual reality world. Navigate through various scenes, make choices, and uncover the secrets hidden within this digital realm. With multiple paths and endings, every playthrough offers a unique experience!
+### How to Play:
+1. Read the scene description presented by the Narrator
+2. Choose from the available options by clicking the corresponding button
+3. Navigate through the story, making decisions that shape your adventure
+4. Reach one of multiple endings based on your choices
 
-#### Technologies Used
-- **JavaScript**: The core game logic and interactivity are built using JavaScript.
-- **p5.js**: This library is used for creating the game's visual elements and handling user input.
-- **HTML/CSS**: The game's structure and styling are implemented using HTML and CSS.
-- **Responsive Design**: The game is designed to be playable on various devices and screen sizes.
-
-For more details about the game, check out the [Docs.md](Docs.md) file.
-
-## 💼 Skills
-
-- Programming
-
+Dive into the world of Detective Doggo Adventure and uncover the secrets hidden within this digital realm!
