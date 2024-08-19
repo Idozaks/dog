@@ -1,32 +1,42 @@
 let game;
 let dialogueSystem;
 let replayButton;
+let fadeAlpha = 255;
+let particles = [];
 
 function setup() {
-  createCanvas(800, 600);
+  createCanvas(800, 700);
   dialogueSystem = new Dialogue();
   game = new DetectiveGame();
   
   textFont('Helvetica Neue');
   textSize(18);
-  textLeading(90); // Set the line spacing to 90 pixels
+  textLeading(45);
+  
+  for (let i = 0; i < 50; i++) {
+    particles.push(new Particle());
+  }
   
   game.getCurrentScene().display();
 
   replayButton = createButton('🔄 Replay');
   replayButton.position(width / 2 - 50, height - 50);
-  replayButton.style('background-color', '#4CAF50');
-  replayButton.style('color', 'white');
-  replayButton.style('padding', '30px 60px');
-  replayButton.style('border', 'none');
-  replayButton.style('border-radius', '5px');
+  replayButton.addClass('game-button');
   replayButton.mousePressed(restartGame);
   replayButton.hide();
 }
 
 function draw() {
   background('#1E1E1E');
+  
+  // Display particles
+  for (let particle of particles) {
+    particle.update();
+    particle.display();
+  }
+  
   dialogueSystem.display();
+  fadeIn();
 }
 
 function keyPressed() {
@@ -56,8 +66,19 @@ class Scene {
   display() {
     dialogueSystem.clear();
     dialogueSystem.add_dialogue("Narrator", this.description);
+    
+    // Remove existing buttons
+    removeExistingButtons();
+    
+    // Create a container for the buttons
+    let buttonContainer = createDiv('');
+    buttonContainer.addClass('button-container');
+    
     this.options.forEach((option, index) => {
-      dialogueSystem.add_dialogue("Option", `${index + 1}: ${option.text}`);
+      let btn = createButton(`${index + 1}: ${option.text}`);
+      btn.parent(buttonContainer);
+      btn.mousePressed(() => game.handlePlayerChoice(index));
+      btn.addClass('game-button');
     });
     dialogueSystem.display();
   }
@@ -79,6 +100,7 @@ class Scene {
 class Dialogue {
   constructor() {
     this.dialogues = [];
+    this.currentTypewriter = null;
   }
 
   /**
@@ -87,26 +109,72 @@ class Dialogue {
    * @param {string} message - The message spoken by the speaker.
    */
   add_dialogue(speaker, message) {
-    this.dialogues.push({ speaker, message });
+    this.dialogues.push({ speaker, message, typewriter: new TypeWriter(message) });
   }
 
   display() {
     textFont('Helvetica Neue');
     textSize(18);
-    let yPos = 50;
+    let yPos = 30;
     this.dialogues.forEach(dialogue => {
-      fill('#FFD700'); // Gold color for speaker
+      fill('#FFD700');
       textStyle(BOLD);
       text(`${dialogue.speaker}:`, 20, yPos);
-      fill('#FFFFFF'); // White color for message
+      fill('#FFFFFF');
       textStyle(NORMAL);
-      text(dialogue.message, 20, yPos + 25, width - 40);
-      yPos += textLeading() + 90; // Increase vertical position by line height plus extra spacing
+      dialogue.typewriter.display(20, yPos + 25, width - 40, 80);
+      dialogue.typewriter.update();
+      yPos += 110;
     });
   }
 
   clear() {
     this.dialogues = [];
+    fadeAlpha = 255;
+  }
+}
+
+class TypeWriter {
+  constructor(text, speed = 50) {
+    this.text = text;
+    this.speed = speed;
+    this.index = 0;
+    this.isComplete = false;
+  }
+
+  update() {
+    if (this.index < this.text.length) {
+      this.index++;
+    } else {
+      this.isComplete = true;
+    }
+  }
+
+  display(x, y, w, h) {
+    text(this.text.substring(0, this.index), x, y, w, h);
+  }
+}
+
+class Particle {
+  constructor() {
+    this.x = random(width);
+    this.y = random(height);
+    this.size = random(2, 5);
+    this.speed = random(0.5, 2);
+  }
+
+  update() {
+    this.y += this.speed;
+    if (this.y > height) {
+      this.y = 0;
+      this.x = random(width);
+    }
+  }
+
+  display() {
+    noStroke();
+    fill(200, 200, 200, 100);
+    ellipse(this.x, this.y, this.size);
   }
 }
 
@@ -119,6 +187,7 @@ class DetectiveGame {
     this.scenes = this.setupScenes();
     this.currentSceneId = 'start';
     this.gameOver = false;
+    this.playerChoices = [];
   }
 
   /**
@@ -249,7 +318,12 @@ class DetectiveGame {
 
     const currentScene = this.getCurrentScene();
     if (currentScene.options[choiceIndex]) {
+      // Disable all buttons to prevent multiple clicks
+      disableButtons();
+
       const nextSceneId = currentScene.selectOption(choiceIndex);
+      this.playerChoices.push(currentScene.options[choiceIndex].text);
+
       this.transitionToScene(nextSceneId);
 
       if (nextSceneId === 'end') {
@@ -281,6 +355,34 @@ class DetectiveGame {
   resetGame() {
     this.currentSceneId = 'start';
     this.gameOver = false;
+    this.playerChoices = [];
     this.getCurrentScene().display();
   }
+}
+
+
+function fadeIn() {
+  if (fadeAlpha > 0) {
+    fadeAlpha -= 5;
+    fill(30, 30, 30, fadeAlpha);
+    rect(0, 0, width, height);
+  }
+}
+
+function removeExistingButtons() {
+  const buttons = selectAll('button');
+  buttons.forEach(button => {
+    if (button !== replayButton) {
+      button.remove();
+    }
+  });
+}
+
+function disableButtons() {
+  const buttons = selectAll('button');
+  buttons.forEach(button => {
+    if (button !== replayButton) {
+      button.attribute('disabled', '');
+    }
+  });
 }

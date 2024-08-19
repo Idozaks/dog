@@ -28,6 +28,26 @@ When I'm not immersed in the world of AI and technology, I enjoy:
 - 🐕 The company of dogs
 - 🔍 Exploring new ways to apply AI in everyday life
 
+## 🎮 Detective Doggo Adventure
+
+### About the Game
+Detective Doggo Adventure is an interactive text-based mystery game where players take on the role of a detective in a virtual reality world. Navigate through various scenes, make choices, and uncover the secrets hidden within this digital realm. With multiple paths and endings, every playthrough offers a unique experience!
+
+### Technologies Used
+- **JavaScript**: The core game logic and interactivity are built using JavaScript.
+- **p5.js**: This library is used for creating the game's visual elements and handling user input.
+- **HTML/CSS**: The game's structure and styling are implemented using HTML and CSS.
+- **Responsive Design**: The game is designed to be playable on various devices and screen sizes.
+
+### Key Features
+- Dynamic scene transitions
+- Choice-based gameplay
+- Particle effects for enhanced visuals
+- Typewriter text effect for immersive storytelling
+- Responsive button layout
+
+Dive into the world of Detective Doggo Adventure and put your sleuthing skills to the test!
+
 ---
 
 Feel free to reach out if you're interested in collaborating on AI projects or discussing the latest developments in the field!
