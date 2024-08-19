@@ -78,6 +78,7 @@ function draw() {
     p.update();
     p.display();
   });
+  dialogueSystem.update();
   dialogueSystem.display();
   fadeIn();
 }
@@ -135,7 +136,7 @@ class Scene {
 
   display() {
     dialogueSystem.clear();
-    dialogueSystem.add_dialogue("Narrator", this.description);
+    dialogueSystem.addDialogue("Narrator", this.description);
     
     removeExistingButtons();
     
@@ -148,7 +149,6 @@ class Scene {
       btn.mousePressed(() => game.handlePlayerChoice(index));
       btn.addClass('game-button');
     });
-    dialogueSystem.display();
   }
 
   selectOption(index) {
@@ -165,8 +165,14 @@ class Dialogue {
     this.currentTypewriter = null;
   }
 
-  add_dialogue(speaker, message) {
-    this.dialogues.push({ speaker: speaker, message: `${speaker} says: ${message}` });
+  addDialogue(speaker, message) {
+    this.dialogues.push(new TypeWriter(`${speaker} says: ${message}`));
+  }
+
+  update() {
+    if (this.dialogues.length > 0 && !this.dialogues[0].isComplete) {
+      this.dialogues[0].update();
+    }
   }
 
   display() {
@@ -174,8 +180,7 @@ class Dialogue {
     fill('20FA21');
     let yPos = 50;
     this.dialogues.forEach(dialogue => {
-      fill('20FA21');
-      text(dialogue.message, 20, yPos, width - 40);
+      dialogue.display(20, yPos, width - 40);
       yPos += 60;
     });
   }
@@ -187,7 +192,7 @@ class Dialogue {
 }
 
 class TypeWriter {
-  constructor(text, speed = 50) {
+  constructor(text, speed = 2) {
     this.text = text;
     this.speed = speed;
     this.index = 0;
@@ -196,14 +201,14 @@ class TypeWriter {
 
   update() {
     if (this.index < this.text.length) {
-      this.index++;
+      this.index += this.speed;
     } else {
       this.isComplete = true;
     }
   }
 
-  display(x, y, w, h) {
-    text(this.text.substring(0, this.index), x, y, w, h);
+  display(x, y, w) {
+    text(this.text.substring(0, Math.floor(this.index)), x, y, w);
   }
 }
 
@@ -273,7 +278,7 @@ class DetectiveGame {
 
   handlePlayerChoice(choiceIndex) {
     if (this.gameOver) {
-      dialogueSystem.add_dialogue("Narrator", "The game is over. Click the button to replay.");
+      dialogueSystem.addDialogue("Narrator", "The game is over. Click the button to replay.");
       replayButton.show();
       return;
     }
@@ -292,9 +297,8 @@ class DetectiveGame {
         replayButton.show();
       }
     } else {
-      dialogueSystem.add_dialogue("Narrator", "Please select a valid option.");
+      dialogueSystem.addDialogue("Narrator", "Please select a valid option.");
     }
-    dialogueSystem.display();
   }
 
   transitionToScene(nextSceneId) {
@@ -302,7 +306,7 @@ class DetectiveGame {
       this.currentSceneId = nextSceneId;
       this.getCurrentScene().display();
     } else {
-      dialogueSystem.add_dialogue("Narrator", "An unexpected error occurred.");
+      dialogueSystem.addDialogue("Narrator", "An unexpected error occurred.");
     }
   }
 
