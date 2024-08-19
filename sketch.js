@@ -8,33 +8,17 @@ function setup() {
   createCanvas(800, 700);
   dialogueSystem = new Dialogue();
   game = new DetectiveGame();
-  
-  textFont('Helvetica Neue');
-  textSize(18);
-  textLeading(45);
-  
-  for (let i = 0; i < 50; i++) {
-    particles.push(new Particle());
-  }
-  
   game.getCurrentScene().display();
 
   replayButton = createButton('🔄 Replay');
-  replayButton.position(width / 2 - 50, height - 50);
-  replayButton.addClass('game-button');
+  replayButton.position(width / 2 - replayButton.width / 2, height / 2);
   replayButton.mousePressed(restartGame);
   replayButton.hide();
 }
 
 function draw() {
-  background('#1E1E1E');
-  
-  // Display particles
-  for (let particle of particles) {
-    particle.update();
-    particle.display();
-  }
-  
+  background(0);
+
   dialogueSystem.display();
   fadeIn();
 }
@@ -75,10 +59,7 @@ class Scene {
     buttonContainer.addClass('button-container');
     
     this.options.forEach((option, index) => {
-      let btn = createButton(`${index + 1}: ${option.text}`);
-      btn.parent(buttonContainer);
-      btn.mousePressed(() => game.handlePlayerChoice(index));
-      btn.addClass('game-button');
+      dialogueSystem.add_dialogue("Option", `➡️ ${index + 1}: ${option.text}`);
     });
     dialogueSystem.display();
   }
@@ -109,22 +90,17 @@ class Dialogue {
    * @param {string} message - The message spoken by the speaker.
    */
   add_dialogue(speaker, message) {
-    this.dialogues.push({ speaker, message, typewriter: new TypeWriter(message) });
+    this.dialogues.push({ speaker: speaker, message: `${speaker} says: ${message}` });
   }
 
   display() {
-    textFont('Helvetica Neue');
-    textSize(18);
-    let yPos = 30;
+    textSize(16);
+    fill('20FA21');
+    let yPos = 50;
     this.dialogues.forEach(dialogue => {
-      fill('#FFD700');
-      textStyle(BOLD);
-      text(`${dialogue.speaker}:`, 20, yPos);
-      fill('#FFFFFF');
-      textStyle(NORMAL);
-      dialogue.typewriter.display(20, yPos + 25, width - 40, 80);
-      dialogue.typewriter.update();
-      yPos += 110;
+      fill('20FA21');
+      text(dialogue.message, 20, yPos, width - 40);
+      yPos += 60;
     });
   }
 
@@ -358,31 +334,4 @@ class DetectiveGame {
     this.playerChoices = [];
     this.getCurrentScene().display();
   }
-}
-
-
-function fadeIn() {
-  if (fadeAlpha > 0) {
-    fadeAlpha -= 5;
-    fill(30, 30, 30, fadeAlpha);
-    rect(0, 0, width, height);
-  }
-}
-
-function removeExistingButtons() {
-  const buttons = selectAll('button');
-  buttons.forEach(button => {
-    if (button !== replayButton) {
-      button.remove();
-    }
-  });
-}
-
-function disableButtons() {
-  const buttons = selectAll('button');
-  buttons.forEach(button => {
-    if (button !== replayButton) {
-      button.attribute('disabled', '');
-    }
-  });
 }
